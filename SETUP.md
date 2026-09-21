@@ -36,8 +36,41 @@ end
 **Write the url out in full and do not add a `version` field.** Homebrew
 requires `url` before `version` (`FormulaAudit/ComponentsOrder`) and derives
 the version from the url itself, so a url interpolating `#{version}` forces
-the wrong order and `brew style` rejects it. This is why `bump.yml` rewrites
-the **url and the sha256** rather than a version field.
+the wrong order and `brew style` rejects it.
+
+## The cask
+
+A cask is the opposite, and the difference matters when releasing:
+
+```ruby
+cask "example" do
+  version "1.0.0"
+  sha256 "REPLACE_ON_FIRST_RELEASE"
+
+  url "https://github.com/NoiXdev/example/releases/download/v#{version}/example_#{version}_universal.dmg"
+  name "Example"
+  desc "One line, no trailing full stop"
+  homepage "https://github.com/NoiXdev/example"
+
+  depends_on macos: ">= :ventura"
+
+  app "Example.app"
+end
+```
+
+Casks **do** carry a `version`, and interpolating it into the url is the
+convention rather than a mistake.
+
+| | Formula | Cask |
+|---|---|---|
+| `version` field | none — derived from the url | yes |
+| url | written out | interpolates `#{version}` |
+| a release bumps | **url + sha256** | **version + sha256**, the url follows |
+
+`bump.yml` handles both and refuses to guess: it checks a cask really has a
+`version` line, reads a formula's current version out of its url, and fails
+when the file did not change — a bump that quietly does nothing would leave
+the tap pointing at the previous release while the release itself is out.
 
 ## Releasing
 

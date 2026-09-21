@@ -30,23 +30,36 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Rewrite the url and checksum
+      - name: Rewrite the version and checksum
         run: |
           set -euo pipefail
-          dir=$([ "${{ inputs.kind }}" = cask ] && echo Casks || echo Formula)
+          if [ "${{ inputs.kind }}" = cask ]; then dir=Casks; else dir=Formula; fi
           file="$dir/${{ inputs.name }}.rb"
           test -f "$file" || { echo "no such file: $file" >&2; exit 1; }
 
-          # The url carries the version twice: once as the tag, once in the
-          # file name. Replacing every old version string would be fragile, so
-          # the url is rebuilt from the one in the file.
-          old=$(grep -oE 'download/v[^/]+/' "$file" | head -1 | sed 's|download/v||;s|/||')
-          test -n "$old" || { echo "cannot read the current version from $file" >&2; exit 1; }
+          # The two kinds are bumped differently, and getting this wrong is
+          # silent: a cask carries a `version` field and interpolates it into
+          # its url, so rewriting the url text would leave the version behind
+          # and vice versa. A formula has no version field at all — Homebrew
+          # derives it from the url — so there the url is the only place.
+          if [ "$dir" = Casks ]; then
+            grep -q '^  version ' "$file" || {
+              echo "$file has no version field; casks are expected to carry one" >&2
+              exit 1
+            }
+            sed -i 's|^  version ".*"|  version "${{ inputs.version }}"|' "$file"
+          else
+            old=$(grep -oE 'download/v[^/]+/' "$file" | head -1 | sed 's|download/v||;s|/||')
+            test -n "$old" || { echo "cannot read the current version from $file" >&2; exit 1; }
+            sed -i "s|/v$old/|/v${{ inputs.version }}/|g; s|-v$old-|-v${{ inputs.version }}-|g" "$file"
+          fi
 
-          sed -i "s|/v$old/|/v${{ inputs.version }}/|g; s|-v$old-|-v${{ inputs.version }}-|g" "$file"
-          sed -i "s|sha256 \".*\"|sha256 \"${{ inputs.sha256 }}\"|" "$file"
+          sed -i 's|sha256 ".*"|sha256 "${{ inputs.sha256 }}"|' "$file"
 
-          grep -q "${{ inputs.version }}" "$file" || { echo "version did not change" >&2; exit 1; }
+          grep -q "${{ inputs.version }}" "$file" || {
+            echo "nothing changed — the bump would have been a no-op" >&2
+            exit 1
+          }
           git diff --stat
 
       - name: Commit
