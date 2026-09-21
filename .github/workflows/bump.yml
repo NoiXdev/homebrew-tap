@@ -1,0 +1,57 @@
+name: Bump
+
+# Called by a product's release workflow after it has published an asset.
+# Rewrites the url and the checksum, because the formulae here carry no
+# version field — Homebrew derives the version from the url.
+on:
+  workflow_dispatch:
+    inputs:
+      kind:
+        description: formula or cask
+        required: true
+        type: choice
+        options: [formula, cask]
+      name:
+        description: file name without .rb
+        required: true
+      version:
+        description: without a leading v
+        required: true
+      sha256:
+        description: checksum of the release asset
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Rewrite the url and checksum
+        run: |
+          set -euo pipefail
+          dir=$([ "${{ inputs.kind }}" = cask ] && echo Casks || echo Formula)
+          file="$dir/${{ inputs.name }}.rb"
+          test -f "$file" || { echo "no such file: $file" >&2; exit 1; }
+
+          # The url carries the version twice: once as the tag, once in the
+          # file name. Replacing every old version string would be fragile, so
+          # the url is rebuilt from the one in the file.
+          old=$(grep -oE 'download/v[^/]+/' "$file" | head -1 | sed 's|download/v||;s|/||')
+          test -n "$old" || { echo "cannot read the current version from $file" >&2; exit 1; }
+
+          sed -i "s|/v$old/|/v${{ inputs.version }}/|g; s|-v$old-|-v${{ inputs.version }}-|g" "$file"
+          sed -i "s|sha256 \".*\"|sha256 \"${{ inputs.sha256 }}\"|" "$file"
+
+          grep -q "${{ inputs.version }}" "$file" || { echo "version did not change" >&2; exit 1; }
+          git diff --stat
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore(${{ inputs.name }}): ${{ inputs.version }}"
+          git push
