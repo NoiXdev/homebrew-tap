@@ -128,3 +128,45 @@ credentials.
 Check the name is free in homebrew-core before choosing one —
 `brew search --formula "^name$"`. If it is, `brew install name` works after
 tapping, without the full path.
+
+## Release notifications
+
+Releases are announced in Discord by
+[`SethCohen/github-releases-to-discord`](https://github.com/marketplace/actions/github-releases-to-discord),
+as a step in the product's release workflow:
+
+```yaml
+- name: Announce on Discord
+  if: env.WEBHOOK != ''
+  env:
+    WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_RELEASE_NOTIFICATION }}
+  uses: SethCohen/github-releases-to-discord@v1
+  with:
+    webhook_url: ${{ secrets.DISCORD_WEBHOOK_RELEASE_NOTIFICATION }}
+    color: "2105893"
+    username: "NoiX Releases"
+```
+
+The detour through `env` is the point. `if: secrets.X != ''` is not evaluated
+— secrets are unavailable in `if` at job level and only partly at step level —
+so the comparison is made against an `env` value instead. A repository without
+a webhook then skips the step silently rather than failing the run.
+
+`DISCORD_WEBHOOK_RELEASE_NOTIFICATION` is an organisation secret scoped to
+public repositories, so every product inherits it. A repository secret of the
+**same name** overrides it, which is how a single product gets its own
+channel without a second variable or a branch in the workflow.
+
+In a shared workflow the secret has to be declared, or the caller cannot pass
+it through:
+
+```yaml
+on:
+  workflow_call:
+    secrets:
+      DISCORD_WEBHOOK_RELEASE_NOTIFICATION:
+        required: false
+```
+
+`required: false` matters — otherwise a repository without a webhook fails at
+the call itself.
