@@ -56,8 +56,23 @@ jobs:
 
           sed -i 's|sha256 ".*"|sha256 "${{ inputs.sha256 }}"|' "$file"
 
-          grep -q "${{ inputs.version }}" "$file" || {
-            echo "nothing changed — the bump would have been a no-op" >&2
+          # Matched as a path segment, not as text anywhere in the file.
+          # Promoting 1.0.0-beta.1 to 1.0.0 is the case that breaks a plain
+          # substring check: "1.0.0" is already inside "1.0.0-beta.1", so a
+          # sed that silently did nothing would still pass.
+          if [ "$dir" = Casks ]; then
+            grep -q "^  version \"${{ inputs.version }}\"" "$file" || {
+              echo "nothing changed — the bump would have been a no-op" >&2
+              exit 1
+            }
+          else
+            grep -q "/v${{ inputs.version }}/" "$file" || {
+              echo "nothing changed — the bump would have been a no-op" >&2
+              exit 1
+            }
+          fi
+          grep -q "sha256 \"${{ inputs.sha256 }}\"" "$file" || {
+            echo "the checksum was not written" >&2
             exit 1
           }
           git diff --stat
