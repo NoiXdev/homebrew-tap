@@ -8,6 +8,10 @@ Formula/    command-line tools, one .rb per product
 Casks/      GUI applications, one .rb per product
 ```
 
+Add a row to the table in [README.md](README.md) at the same time. That table
+is the only place a user finds out a product exists here; a formula nobody is
+told about is a formula nobody installs.
+
 A product with both halves — a CLI and an app — gets an entry in each, under
 the same name.
 
