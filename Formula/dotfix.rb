@@ -9,8 +9,8 @@
 class Dotfix < Formula
   desc "Keep macOS terminal setups in sync across machines"
   homepage "https://github.com/NoiXdev/dotfix"
-  url "https://github.com/NoiXdev/dotfix/releases/download/v1.0.0-beta.1/dotfix-v1.0.0-beta.1-macos-universal.tar.gz"
-  sha256 "REPLACE_ON_FIRST_RELEASE"
+  url "https://github.com/NoiXdev/dotfix/releases/download/v1.0.0/dotfix-v1.0.0-macos-universal.tar.gz"
+  sha256 "1e5d5df949375efaf55a3b1f25c46dfe83f4ea64051677362fe3191a26a7ef52"
   license "MIT"
 
   depends_on :macos
