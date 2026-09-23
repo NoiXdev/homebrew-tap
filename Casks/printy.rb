@@ -4,8 +4,8 @@
 # Casks carry a `version` and interpolate it into the url — the opposite of a
 # formula. See SETUP.md.
 cask "printy" do
-  version "0.1.0"
-  sha256 "REPLACE_ON_FIRST_RELEASE"
+  version "1.0.0"
+  sha256 "f0c79f7efb87c4f5dc3ec3156cf7f8906407cff8588964c497e93103b7bb7dea"
 
   url "https://github.com/NoiXdev/printy/releases/download/v#{version}/Printy_#{version}_universal.dmg"
   name "Printy"
