@@ -76,6 +76,13 @@ convention rather than a mistake.
 when the file did not change — a bump that quietly does nothing would leave
 the tap pointing at the previous release while the release itself is out.
 
+It then **downloads what the file now points at and checks the checksum**,
+before committing anything. A bump it cannot verify leaves the tap on its
+previous, working version rather than publishing a pointer to an asset that
+does not exist. This is not hypothetical: on 2026-09-23 Printy's release was
+published while its bump failed, and the tap would have advertised
+`brew install --cask printy` against a 404 until somebody noticed.
+
 ## Releasing
 
 The product's own release workflow builds the artefact, then calls this
@@ -87,12 +94,38 @@ repository:
     GH_TOKEN: ${{ secrets.TAP_TOKEN }}
   run: |
     SHA=$(cut -d' ' -f1 checksum.txt)
-    gh workflow run bump.yml --repo NoiXdev/homebrew-tap \
-      -f kind=formula -f name=example \
-      -f version="${GITHUB_REF_NAME#v}" -f sha256="$SHA"
+    for attempt in 1 2 3; do
+      gh workflow run bump.yml --repo NoiXdev/homebrew-tap \
+        -f kind=formula -f name=example \
+        -f version="${GITHUB_REF_NAME#v}" -f sha256="$SHA" && exit 0
+      echo "dispatch attempt $attempt failed"; sleep 10
+    done
+    exit 1
+
+# This job runs after the release is already public, so a failure here is
+# not something to discover next week. Say what to run by hand.
+- name: Explain how to finish the bump by hand
+  if: failure()
+  run: |
+    echo "::error::The tap was not bumped. The release is already published,"
+    echo "::error::so the tap still points at the previous version. Run:"
+    echo "  gh workflow run bump.yml --repo NoiXdev/homebrew-tap \\"
+    echo "    -f kind=formula -f name=example \\"
+    echo "    -f version=${GITHUB_REF_NAME#v} -f sha256=<checksum>"
 ```
 
-`TAP_TOKEN` is a fine-grained PAT scoped to this repository only.
+`TAP_TOKEN` must be able to dispatch workflows in **this** repository:
+
+- **Classic PAT** — scopes `repo` and `workflow`. Simplest, and `workflow` is
+  exactly the scope dispatch requires.
+- **Fine-grained PAT** — *Repository access* must list this repository,
+  *Repository permissions → Actions* must be **Read and write**, and an org
+  owner has to approve the token for the organisation. Missing any one of the
+  three produces `HTTP 403: Resource not accessible by personal access token`,
+  with nothing to say which.
+
+Verify a change to the token by re-running the failed job
+(`gh run rerun <id> --failed`) rather than assuming it took.
 
 | Input | Meaning |
 |---|---|
