@@ -56,7 +56,7 @@ cask "example" do
   desc "One line, no trailing full stop"
   homepage "https://github.com/NoiXdev/example"
 
-  depends_on macos: ">= :ventura"
+  depends_on macos: :ventura
 
   app "Example.app"
 end

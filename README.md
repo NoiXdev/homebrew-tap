@@ -15,6 +15,7 @@ machine by itself, and it only needs doing once.
 | | Install | Documentation |
 |---|---|---|
 | **dotfix** — keep macOS terminal setups in sync across machines | `brew install dotfix` | [docs.noix.dev/dotfix](https://docs.noix.dev/dotfix) |
+| **Printy** — watch folders and print the files that land in them | `brew install --cask printy` | [docs.noix.dev/printy](https://docs.noix.dev/printy) |
 
 A name is enough once the tap is added. If another tap offers something under
 the same name, spell it out: `brew install NoiXdev/tap/dotfix`.
