@@ -131,8 +131,24 @@ jobs:
           echo "Verified: the artifact exists and matches the checksum."
 
       - name: Commit
+        env:
+          NAME: ${{ inputs.name }}
+          VERSION: ${{ inputs.version }}
         run: |
+          set -euo pipefail
+          # Reaching this point with nothing staged means the file already
+          # named this version and this checksum -- and the step above has
+          # just confirmed that pointer is good. That is the desired end
+          # state, not a failure.
+          #
+          # It is the normal outcome of re-dispatching a bump by hand after a
+          # partial release, so failing here would turn the recovery path red
+          # while the tap is in fact correct.
+          if git diff --quiet; then
+            echo "Already at ${VERSION} with a verified checksum; nothing to commit."
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "chore(${{ inputs.name }}): ${{ inputs.version }}"
+          git commit -am "chore(${NAME}): ${VERSION}"
           git push
