@@ -77,6 +77,59 @@ jobs:
           }
           git diff --stat
 
+      # Everything above only edited text. Nothing has checked that the file
+      # now points at something that exists.
+      #
+      # This runs *before* the commit on purpose. A bump that cannot be
+      # verified must leave the tap on its previous, working version -- the
+      # alternative is what happened to Printy on 2026-09-23: the release was
+      # already published, the bump landed pointing at an asset nobody had
+      # confirmed, and `brew install` would have 404'd for every user until
+      # someone noticed.
+      - name: Verify the file points at a real artifact
+        env:
+          KIND: ${{ inputs.kind }}
+          NAME: ${{ inputs.name }}
+          VERSION: ${{ inputs.version }}
+          SHA: ${{ inputs.sha256 }}
+        run: |
+          set -euo pipefail
+          if [ "$KIND" = cask ]; then dir=Casks; else dir=Formula; fi
+          file="$dir/${NAME}.rb"
+
+          url=$(grep -m1 -E '^[[:space:]]*url "' "$file" | sed -E 's|^[[:space:]]*url "([^"]+)".*|\1|')
+          test -n "$url" || { echo "::error::no url found in $file"; exit 1; }
+          # A cask interpolates the version into its url; a formula writes it
+          # out, so this substitution is a no-op there.
+          url="${url//\#\{version\}/$VERSION}"
+          echo "Resolved url: $url"
+
+          # A release asset can take a moment to become downloadable after the
+          # release workflow uploads it, so a single 404 is not yet an answer.
+          tmp="$(mktemp)"
+          for attempt in 1 2 3 4 5; do
+            if curl -fsSL --retry 2 --retry-delay 2 -o "$tmp" "$url"; then
+              downloaded=yes; break
+            fi
+            echo "attempt $attempt could not fetch it; waiting for the asset to appear"
+            sleep 15
+          done
+          if [ "${downloaded:-no}" != yes ]; then
+            echo "::error::$url is not downloadable. The tap has NOT been changed; it still points at the previous release."
+            exit 1
+          fi
+
+          actual=$(sha256sum "$tmp" | cut -d' ' -f1)
+          rm -f "$tmp"
+          if [ "$actual" != "$SHA" ]; then
+            echo "::error::checksum mismatch for $url"
+            echo "  expected (dispatched): $SHA"
+            echo "  actual   (downloaded): $actual"
+            echo "The tap has NOT been changed. Re-dispatch with the correct checksum."
+            exit 1
+          fi
+          echo "Verified: the artifact exists and matches the checksum."
+
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
