@@ -10,6 +10,18 @@ brew tap NoiXdev/tap
 A tap is a source of software definitions — adding it changes nothing on your
 machine by itself, and it only needs doing once.
 
+Homebrew will not load anything from a tap it does not know, so tell it once
+that this one is yours:
+
+```bash
+brew trust --tap NoiXdev/tap
+```
+
+Without it, an install stops with *"Refusing to load cask … from untrusted
+tap"* rather than installing. The answer is recorded in
+`~/.homebrew/trust.json` on your machine and applies to everything here, now
+and later.
+
 ## Available
 
 | | Install | Documentation |
