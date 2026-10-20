@@ -4,8 +4,8 @@
 # Casks carry a `version` and interpolate it into the url — the opposite of a
 # formula. See SETUP.md.
 cask "notefix" do
-  version "0.8.0"
-  sha256 "d6271846d3c96000b5929e81990e23dc7b2721d2ead6d199abe2dbff090195a8"
+  version "0.9.0"
+  sha256 "d420c8505e5435107ae5f36182acf57e3ae6fc2f4a88fd4a02c5554d2bc7cade"
 
   url "https://github.com/NoiXdev/notefix/releases/download/v#{version}/Notefix_#{version}_universal.dmg"
   name "Notefix"
