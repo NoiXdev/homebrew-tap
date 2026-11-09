@@ -8,8 +8,8 @@
 # Casks carry a `version` and interpolate it into the url — the opposite of a
 # formula. See SETUP.md.
 cask "macscp" do
-  version "1.6.0"
-  sha256 "ffc5fa69f8ceb1c039bb617f66f895eb130f715fc86f85a645f8ff2b99204de1"
+  version "1.7.0"
+  sha256 "78dea378c60510fd131c4ca4dd16e1c0f097fc78af5b80dad4440790aae5646f"
 
   url "https://github.com/NoiXdev/macSCP/releases/download/v#{version}/macSCP-#{version}.dmg"
   name "macSCP"
