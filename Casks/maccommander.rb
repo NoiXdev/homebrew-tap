@@ -4,8 +4,8 @@
 # Casks carry a `version` and interpolate it into the url — the opposite of a
 # formula. See SETUP.md.
 cask "maccommander" do
-  version "0.1.1"
-  sha256 "fce43444306d519229bff6a31c967d8ee223824f049382a7f2287224645b2b1f"
+  version "0.2.0"
+  sha256 "28f9e7ec57be2acccc464128e45c82acf9249ff878a4388e896e7c2f7ffb9182"
 
   url "https://github.com/NoiXdev/mac-commander/releases/download/v#{version}/MacCommander-#{version}.dmg"
   name "MacCommander"
