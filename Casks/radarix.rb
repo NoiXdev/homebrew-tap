@@ -1,8 +1,8 @@
 # Cask for NoiXdev/homebrew-tap. Bumped by Radarix's release workflow, which
 # dispatches bump.yml with the checksum of the DMG it just uploaded.
 cask "radarix" do
-  version "1.0.0"
-  sha256 "c99d370c8397318b1261e6f8f38341cbbe58d64a6c49f8108510ba14f06e517e"
+  version "1.1.0"
+  sha256 "9d0037a09d6476c63834af3ba57dbcb3c97a488b07a086d1011222117f7743a6"
 
   url "https://github.com/NoiXdev/radarix/releases/download/v#{version}/Radarix-#{version}.dmg"
   name "Radarix"
