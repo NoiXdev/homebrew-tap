@@ -31,6 +31,7 @@ and later.
 | **macSCP** — browse and move files between your Mac and your servers, side by side | `brew install --cask macscp` | [docs.noix.dev/macscp](https://docs.noix.dev/macscp) |
 | **Notefix** — local-first notes with folders, sync between devices and a protected vault | `brew install --cask notefix` | [github.com/NoiXdev/notefix](https://github.com/NoiXdev/notefix) |
 | **Printy** — watch folders and print the files that land in them | `brew install --cask printy` | [docs.noix.dev/printy](https://docs.noix.dev/printy) |
+| **Radarix** — new and updated pull requests and issues, without GitHub's inbox | `brew install --cask radarix` | [docs.noix.dev/radarix](https://docs.noix.dev/radarix) |
 
 A name is enough once the tap is added. If another tap offers something under
 the same name, spell it out: `brew install NoiXdev/tap/dotfix`.
