@@ -12,9 +12,6 @@ cask "maccommander" do
   desc "Native file manager with an optional dual-pane mode"
   homepage "https://github.com/NoiXdev/mac-commander"
 
-  # 0.1.1 is Apple silicon only. Releases after it are universal: delete this
-  # line together with the first bump past 0.1.1.
-  depends_on arch: :arm64
   # LSMinimumSystemVersion in the app's Info.plist is 15.0.
   depends_on macos: :sequoia
 
