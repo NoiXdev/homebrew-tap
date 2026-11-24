@@ -27,6 +27,7 @@ and later.
 | | Install | Documentation |
 |---|---|---|
 | **dotfix** — keep macOS terminal setups in sync across machines | `brew install dotfix` | [docs.noix.dev/dotfix](https://docs.noix.dev/dotfix) |
+| **MacCommander** — a fast file manager for the Mac, with two panes if you want them | `brew install --cask maccommander` | [docs.noix.dev/maccommander](https://docs.noix.dev/maccommander) |
 | **macSCP** — browse and move files between your Mac and your servers, side by side | `brew install --cask macscp` | [docs.noix.dev/macscp](https://docs.noix.dev/macscp) |
 | **Notefix** — local-first notes with folders, sync between devices and a protected vault | `brew install --cask notefix` | [github.com/NoiXdev/notefix](https://github.com/NoiXdev/notefix) |
 | **Printy** — watch folders and print the files that land in them | `brew install --cask printy` | [docs.noix.dev/printy](https://docs.noix.dev/printy) |
